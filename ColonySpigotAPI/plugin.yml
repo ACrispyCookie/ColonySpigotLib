@@ -1,0 +1,5 @@
+name: ColonySpigotAPI
+version: 1.0
+author: ACrispyCookie
+main: net.colonymc.api.Main
+depend: [ColonyAPI]
