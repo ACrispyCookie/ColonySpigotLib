@@ -13,6 +13,7 @@ import net.md_5.bungee.api.ChatColor;
 public class AutomaticRestart {
 	
 	int amount = 200;
+	boolean started = false;
 	BukkitTask task;
 	BukkitTask restart;
 	
@@ -23,8 +24,11 @@ public class AutomaticRestart {
 				int maxMem = (int) (Runtime.getRuntime().maxMemory() / 1000000);
 				int totalMem = (int) (Runtime.getRuntime().totalMemory() / 1000000);
 				if(maxMem - totalMem <= amount) {
-					scheduleRestart();
-					cancel();
+					if(!started) {
+						started = true;
+						scheduleRestart();
+						cancel();
+					}
 				}
 			}
 		}.runTaskTimerAsynchronously(Main.getInstance(), 0, 1);
