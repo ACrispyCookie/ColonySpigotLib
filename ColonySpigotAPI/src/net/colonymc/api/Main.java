@@ -9,6 +9,7 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import net.colonymc.api.book.BookActionCommand;
 import net.colonymc.api.player.ColonyPlayer;
 import net.colonymc.api.player.PublicHologram;
 import net.colonymc.colonyapi.MainDatabase;
@@ -26,6 +27,7 @@ public class Main extends JavaPlugin {
 			Main.this.saveDefaultConfig();
 			setupConfigFiles();
 			setupListeners();
+			setupCommands();
 			new AutomaticRestart();
 			started = true;
 			System.out.println(" » ColonySpigotAPI has been enabled successfully!");
@@ -45,6 +47,10 @@ public class Main extends JavaPlugin {
 	private void setupListeners() {
 		Bukkit.getPluginManager().registerEvents(new ColonyPlayer(), this);
 		Bukkit.getPluginManager().registerEvents(new PublicHologram(), this);
+	}
+	
+	private void setupCommands() {
+		getCommand("bookaction").setExecutor(new BookActionCommand());
 	}
 	
 	private void destroyHolograms() {

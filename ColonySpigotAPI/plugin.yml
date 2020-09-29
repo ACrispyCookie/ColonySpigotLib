@@ -3,3 +3,6 @@ version: 1.0
 author: ACrispyCookie
 main: net.colonymc.api.Main
 depend: [ColonyAPI]
+commands:
+  bookaction:
+    description: Command used in book GUIs
