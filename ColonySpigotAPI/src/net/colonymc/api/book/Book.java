@@ -40,9 +40,8 @@ public class Book {
 			ItemStack book = new ItemStack(Material.WRITTEN_BOOK);
 			BookMeta meta = (BookMeta) book.getItemMeta();
 			List<IChatBaseComponent> pages = (List<IChatBaseComponent>) CraftMetaBook.class.getDeclaredField("pages").get(meta);
-			TextComponent text = new TextComponent();
+			TextComponent text = new TextComponent("");
 			for(Line line : lines) {
-				text.addExtra(new TextComponent("\n"));
 				text.addExtra(line.getText());
 			}
 			IChatBaseComponent page = IChatBaseComponent.ChatSerializer.a(ComponentSerializer.toString(new BaseComponent[]{text}));
