@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.UUID;
 
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 public abstract class Survey {
@@ -38,7 +39,22 @@ public abstract class Survey {
 								if(l.getKey() != null) {
 									values.put(l.getKey(), l.getValue());
 								}
-								currentIndex++;
+								if(l.getCommands() != null) {
+									for(String s : l.getCommands()) {
+										p.chat(s);
+									}
+								}
+								if(l.getConsoleCommands() != null) {
+									for(String s : l.getConsoleCommands()) {
+										Bukkit.dispatchCommand(Bukkit.getConsoleSender(), s);
+									}
+								}
+								if(l.getGoTo() != -1) {
+									currentIndex = l.getGoTo();
+								}
+								else {
+									currentIndex++;
+								}
 								Survey.this.pages.get(currentIndex).open(p);
 								if(currentIndex == pages.size() - 1) {
 									onComplete(Survey.this.getValues(), p);

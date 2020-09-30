@@ -8,14 +8,20 @@ public class SurveyLine {
 	TextComponent text;
 	BookAction action;
 	boolean button;
+	int goTo = -1;
+	String[] commands;
+	String[] consoleCommands;
 	String key;
 	String value;
 	
-	protected SurveyLine(TextComponent text, boolean finalButton, String key, String value) {
+	protected SurveyLine(TextComponent text, boolean finalButton, String key, String value, String[] commands, String[] consoleCommands, int goTo) {
 		this.text = text;
 		this.button = finalButton;
 		this.key = key;
 		this.value = value;
+		this.commands = commands;
+		this.consoleCommands = consoleCommands;
+		this.goTo = goTo;
 	}
 	
 	protected void setBookAction(BookAction act) {
@@ -43,5 +49,17 @@ public class SurveyLine {
 	
 	public String getValue() {
 		return value;
+	}
+	
+	public String[] getCommands() {
+		return commands;
+	}
+	
+	public String[] getConsoleCommands() {
+		return consoleCommands;
+	}
+	
+	public int getGoTo() {
+		return goTo;
 	}
 }

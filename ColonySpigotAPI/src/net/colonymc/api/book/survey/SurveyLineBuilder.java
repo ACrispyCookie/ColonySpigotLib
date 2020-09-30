@@ -12,10 +12,28 @@ public class SurveyLineBuilder {
 	String hoverText = null;
 	String value = null;
 	String key = null;
+	String[] commands = null;
+	String[] consoleCommands = null;
+	int goTo = -1;
 	boolean isButton = false;
 	
 	public SurveyLineBuilder(String text) {
 		this.text = text;
+	}
+	
+	public SurveyLineBuilder commands(String[] cmd) {
+		this.commands = cmd;
+		return this;
+	}
+	
+	public SurveyLineBuilder consoleCommands(String[] cmd) {
+		this.consoleCommands = cmd;
+		return this;
+	}
+	
+	public SurveyLineBuilder goTo(int i) {
+		this.goTo = i;
+		return this;
 	}
 	
 	public SurveyLineBuilder value(String k) {
@@ -43,7 +61,7 @@ public class SurveyLineBuilder {
 		if(hoverText != null) {
 			t.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new BaseComponent[] {new TextComponent(hoverText)}));
 		}
-		SurveyLine line = new SurveyLine(t, isButton, key, value);
+		SurveyLine line = new SurveyLine(t, isButton, key, value, commands, consoleCommands, goTo);
 		return line;
 	}
 
