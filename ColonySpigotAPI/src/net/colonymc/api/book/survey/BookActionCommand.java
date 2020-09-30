@@ -1,4 +1,4 @@
-package net.colonymc.api.book;
+package net.colonymc.api.book.survey;
 
 import java.util.UUID;
 

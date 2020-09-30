@@ -9,7 +9,7 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import net.colonymc.api.book.BookActionCommand;
+import net.colonymc.api.book.survey.BookActionCommand;
 import net.colonymc.api.player.ColonyPlayer;
 import net.colonymc.api.player.PublicHologram;
 import net.colonymc.colonyapi.MainDatabase;

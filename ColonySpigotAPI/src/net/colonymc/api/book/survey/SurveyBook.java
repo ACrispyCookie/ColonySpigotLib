@@ -1,4 +1,4 @@
-package net.colonymc.api.book;
+package net.colonymc.api.book.survey;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,28 +20,37 @@ import net.minecraft.server.v1_8_R3.IChatBaseComponent;
 import net.minecraft.server.v1_8_R3.PacketDataSerializer;
 import net.minecraft.server.v1_8_R3.PacketPlayOutCustomPayload;
 
-public class Book {
+public class SurveyBook {
 	
 	UUID uuid;
-	ArrayList<Line> lines = new ArrayList<Line>();
-	static ArrayList<Book> books = new ArrayList<Book>();
+	ArrayList<SurveyLine> lines = new ArrayList<SurveyLine>();
+	static ArrayList<SurveyBook> books = new ArrayList<SurveyBook>();
 	
-	public Book() {
+	protected SurveyBook(ArrayList<SurveyLine> lines) {
 		this.uuid = UUID.randomUUID();
 		while(uuidExists()) {
 			this.uuid = UUID.randomUUID();
 		}
+		this.lines = lines;
 		books.add(this);
 	}
 	
+	public UUID getUuid() {
+		return uuid;
+	}
+	
+	public ArrayList<SurveyLine> getLines() {
+		return lines;
+	}
+	
 	@SuppressWarnings("unchecked")
-	public void open(Player p) {
+	protected void open(Player p) {
 		try {
 			ItemStack book = new ItemStack(Material.WRITTEN_BOOK);
 			BookMeta meta = (BookMeta) book.getItemMeta();
 			List<IChatBaseComponent> pages = (List<IChatBaseComponent>) CraftMetaBook.class.getDeclaredField("pages").get(meta);
 			TextComponent text = new TextComponent("");
-			for(Line line : lines) {
+			for(SurveyLine line : lines) {
 				text.addExtra(line.getText());
 			}
 			IChatBaseComponent page = IChatBaseComponent.ChatSerializer.a(ComponentSerializer.toString(new BaseComponent[]{text}));
@@ -51,22 +60,6 @@ public class Book {
 		} catch (IllegalArgumentException | IllegalAccessException | NoSuchFieldException | SecurityException e) {
 			e.printStackTrace();
 		}
-	}
-	
-	public void addLine(Line line) {
-		lines.add(line);
-	}
-	
-	public void addLine(Line line, int index) {
-		lines.add(index, line);
-	}
-	
-	public void removeLine(int index) {
-		lines.remove(index);
-	}
-	
-	public UUID getUuid() {
-		return uuid;
 	}
 	
 	private void openBook(final ItemStack book, final Player player) {
@@ -83,7 +76,7 @@ public class Book {
 	}
 
 	private boolean uuidExists() {
-		for(Book a : books) {
+		for(SurveyBook a : books) {
 			if(a.getUuid().equals(uuid)) {
 				return true;
 			}
@@ -91,13 +84,12 @@ public class Book {
 		return false;
 	}
 	
-	public static Book getByUuid(UUID uuid) {
-		for(Book b : books) {
+	public static SurveyBook getByUuid(UUID uuid) {
+		for(SurveyBook b : books) {
 			if(b.getUuid().equals(uuid)) {
 				return b;
 			}
 		}
 		return null;
 	}
-
 }
