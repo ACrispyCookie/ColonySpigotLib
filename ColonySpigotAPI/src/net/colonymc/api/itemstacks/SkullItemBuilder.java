@@ -147,6 +147,11 @@ public class SkullItemBuilder {
 	        Gson g = new Gson();
 			if(rs.next()) {
 		        String value = rs.getString("skin");
+		        if(value == null) {
+			        String signature = getURLContent("https://sessionserver.mojang.com/session/minecraft/profile/" + uuid.toString());
+			        JsonObject obj = g.fromJson(signature, JsonObject.class);
+			        value = obj.getAsJsonArray("properties").get(0).getAsJsonObject().get("value").getAsString();
+		        }
 		        return value;
 			}
 			else {
