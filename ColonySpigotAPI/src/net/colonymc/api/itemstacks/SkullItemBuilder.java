@@ -3,16 +3,17 @@ package net.colonymc.api.itemstacks;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.lang.reflect.Field;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.craftbukkit.v1_8_R3.inventory.CraftItemStack;
@@ -23,6 +24,8 @@ import org.bukkit.inventory.meta.SkullMeta;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+import com.mojang.authlib.GameProfile;
+import com.mojang.authlib.properties.Property;
 
 import net.colonymc.api.utils.UtilFunctions;
 import net.colonymc.colonyapi.MainDatabase;
@@ -90,14 +93,34 @@ public class SkullItemBuilder {
 
 	public ItemStack build() {
 		ItemStack i;
+		SkullMeta meta = null;
 		if(url != null) {
 			i = UtilFunctions.getSkull(url);
+			meta = (SkullMeta) i.getItemMeta();
 		}
 		else {
-			url = getUrl(uuid);
-			i = UtilFunctions.getSkull(url);
+			i = new ItemStack(Material.SKULL_ITEM, 1, (short) 3);
+			meta = (SkullMeta) i.getItemMeta();
+			if(Bukkit.getPlayer(uuid) != null) {
+				meta.setOwner(Bukkit.getPlayer(uuid).getName());
+			}
+			else {
+		        GameProfile profile = new GameProfile(UUID.randomUUID(), null);
+		        profile.getProperties().put("textures", new Property("textures", new String(getBase64(uuid))));
+		        Field profileField = null;
+		        try {
+		            profileField = meta.getClass().getDeclaredField("profile");
+		        } catch (NoSuchFieldException | SecurityException e) {
+		            e.printStackTrace();
+		        }
+		        profileField.setAccessible(true);
+		        try {
+		            profileField.set(meta, profile);
+		        } catch (IllegalArgumentException | IllegalAccessException e) {
+		            e.printStackTrace();
+		        }
+			}
 		}
-		SkullMeta meta = (SkullMeta) i.getItemMeta();
 		meta.setDisplayName(name);
 		meta.setLore(lore);
 		for(ItemFlag f : flags) {
@@ -114,26 +137,23 @@ public class SkullItemBuilder {
 		}
 		nmsItem.setTag(tag);
 		ItemStack finalItem = CraftItemStack.asBukkitCopy(nmsItem);
+		finalItem.setAmount(amount);
 		return finalItem;
 	}
 	
-	private String getUrl(UUID uuid) {
+	private String getBase64(UUID uuid) {
 		ResultSet rs = MainDatabase.getResultSet("SELECT * FROM PlayerInfo WHERE uuid='" + uuid.toString() + "'");
 		try {
 	        Gson g = new Gson();
 			if(rs.next()) {
 		        String value = rs.getString("skin");
-		        String skinURL = "http://textures.minecraft.net/texture/" + value;
-		        return skinURL;
+		        return value;
 			}
 			else {
 		        String signature = getURLContent("https://sessionserver.mojang.com/session/minecraft/profile/" + uuid.toString());
 		        JsonObject obj = g.fromJson(signature, JsonObject.class);
 		        String value = obj.getAsJsonArray("properties").get(0).getAsJsonObject().get("value").getAsString();
-		        String decoded = new String(Base64.getDecoder().decode(value));
-		        obj = g.fromJson(decoded,JsonObject.class);
-		        String skinURL = obj.getAsJsonObject("textures").getAsJsonObject("SKIN").get("url").getAsString();
-		        return skinURL;
+		        return value;
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
