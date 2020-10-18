@@ -2,23 +2,24 @@ package net.colonymc.api.player;
 
 import java.util.Collection;
 
+import org.bukkit.Effect;
 import org.bukkit.Location;
-import org.bukkit.craftbukkit.v1_8_R3.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import net.colonymc.api.Main;
-import net.minecraft.server.v1_8_R3.EnumParticle;
-import net.minecraft.server.v1_8_R3.PacketPlayOutWorldParticles;
 
 public class Particle {
 	
-	EnumParticle effect;
+	Effect effect;
+	float r = 0;
+	float g = 0;
+	float b = 0;
 	int data = 0;
 	Location loc;
 	BukkitRunnable runnable;
 	
-	public Particle(EnumParticle effect, int data, Location loc) {
+	public Particle(Effect effect, int data, Location loc) {
 		this.effect = effect;
 		this.data = data;
 		this.loc = loc;
@@ -31,8 +32,12 @@ public class Particle {
 		runnable = new BukkitRunnable() {
 			@Override
 			public void run() {
-				PacketPlayOutWorldParticles packet = new PacketPlayOutWorldParticles(effect, true, (float) loc.getX(), (float) loc.getY(), (float) loc.getZ() , 0, 0, 0, 0, data, 0);
-				((CraftPlayer) player).getHandle().playerConnection.sendPacket(packet);
+				if(effect != Effect.COLOURED_DUST) {
+					player.spigot().playEffect(loc, effect, 0, data, 0, 0, 0, 1, 1, 160);
+				}
+				else {
+					player.spigot().playEffect(loc, Effect.COLOURED_DUST, 0, 1, r, g, b, 1, 0, 160);
+				}
 			}
 		};
 		runnable.runTaskTimerAsynchronously(Main.getInstance(), 0L, 1L);
@@ -46,8 +51,12 @@ public class Particle {
 			@Override
 			public void run() {
 				for(Player player : collection) {
-					PacketPlayOutWorldParticles packet = new PacketPlayOutWorldParticles(effect, true, (float) loc.getX(), (float) loc.getY(), (float) loc.getZ() , 0, 0, 0, 0, data, 0);
-					((CraftPlayer) player).getHandle().playerConnection.sendPacket(packet);
+					if(effect != Effect.COLOURED_DUST) {
+						player.spigot().playEffect(loc, effect, 0, data, 0, 0, 0, 1, 1, 160);
+					}
+					else {
+						player.spigot().playEffect(loc, Effect.COLOURED_DUST, 0, 1, r, g, b, 1, 0, 160);
+					}
 				}
 			}
 		};
@@ -64,8 +73,12 @@ public class Particle {
 			public void run() {
 				if(duration > 0) {
 					if(i != duration) {
-						PacketPlayOutWorldParticles packet = new PacketPlayOutWorldParticles(effect, true, (float) loc.getX(), (float) loc.getY(), (float) loc.getZ() , 0, 0, 0, 0, data, 0);
-						((CraftPlayer) player).getHandle().playerConnection.sendPacket(packet);
+						if(effect != Effect.COLOURED_DUST) {
+							player.spigot().playEffect(loc, effect, 0, data, 0, 0, 0, 1, 1, 160);
+						}
+						else {
+							player.spigot().playEffect(loc, Effect.COLOURED_DUST, 0, 1, r, g, b, 1, 0, 160);
+						}
 					}
 					else {
 						cancel();
@@ -90,9 +103,15 @@ public class Particle {
 			public void run() {
 				if(duration > 0) {
 					if(i != duration) {
-						PacketPlayOutWorldParticles packet = new PacketPlayOutWorldParticles(effect, true, (float) loc.getX(), (float) loc.getY(), (float) loc.getZ() , 0, 0, 0, 0, data, 0);
-						for(Player player : collection) {
-							((CraftPlayer) player).getHandle().playerConnection.sendPacket(packet);
+						if(effect != Effect.COLOURED_DUST) {
+							for(Player player : collection) {
+								player.spigot().playEffect(loc, effect, 0, data, 0, 0, 0, 1, 1, 160);
+							}
+						}
+						else {
+							for(Player player : collection) {
+								player.spigot().playEffect(loc, Effect.COLOURED_DUST, 0, 1, r, g, b, 1, 0, 160);
+							}
 						}
 					}
 					else {
@@ -112,9 +131,15 @@ public class Particle {
 		runnable.cancel();
 	}
 	
-	public void setEffect(EnumParticle eff, int data) {
+	public void setEffect(Effect eff, int data) {
 		effect = eff;
 		this.data = data;
+	}
+	
+	public void setRgb(float r, float g, float b) {
+		this.r = r/255.0F - 1.0F;
+		this.g = g/255.0F;
+		this.b = b/255.0F;
 	}
 	
 	public void setLocation(Location loc) {
