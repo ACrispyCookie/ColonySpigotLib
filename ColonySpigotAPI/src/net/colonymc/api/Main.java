@@ -106,5 +106,9 @@ public class Main extends JavaPlugin {
 	public FileConfiguration getNamesConfig() {
 		return namesConfig;
 	}
+	
+	public File getImgs() {
+		return imgs;
+	}
 
 }

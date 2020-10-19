@@ -1,7 +1,10 @@
 package net.colonymc.api.image;
 
 import java.awt.image.BufferedImage;
+import java.io.File;
 import java.util.ArrayList;
+
+import net.colonymc.api.Main;
 
 public class Image {
 	
@@ -38,6 +41,10 @@ public class Image {
 	
 	public static void clearList() {
 		imgs.clear();
+	}
+	
+	public static File getFolder() {
+		return Main.getInstance().getImgs();
 	}
 
 
