@@ -1,8 +1,12 @@
 package net.colonymc.api;
 
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 
+import javax.imageio.ImageIO;
+
+import org.apache.commons.io.FilenameUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -10,6 +14,8 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import net.colonymc.api.book.survey.BookActionCommand;
+import net.colonymc.api.image.Image;
+import net.colonymc.api.image.ImageMap;
 import net.colonymc.api.player.ColonyPlayer;
 import net.colonymc.api.player.PublicHologram;
 import net.colonymc.colonyapi.MainDatabase;
@@ -18,6 +24,7 @@ public class Main extends JavaPlugin {
 	
 	static Main instance;
 	File names = new File(this.getDataFolder(), "names.yml");
+	private File imgs = new File(this.getDataFolder(), "/imgs");
 	FileConfiguration namesConfig;
 	boolean started = false;
 	
@@ -28,6 +35,7 @@ public class Main extends JavaPlugin {
 			setupConfigFiles();
 			setupListeners();
 			setupCommands();
+			setupImages();
 			new AutomaticRestart();
 			started = true;
 			System.out.println(" » ColonySpigotAPI has been enabled successfully!");
@@ -43,8 +51,24 @@ public class Main extends JavaPlugin {
 		}
 		System.out.println(" » ColonySpigotAPI has been disabled successfully!");
 	}
+	
+	private void setupImages() {
+		if(imgs != null) {
+			for(File f : imgs.listFiles()) {
+				try {
+					BufferedImage img = ImageIO.read(f);
+					if(img != null) {
+						new Image(FilenameUtils.removeExtension(f.getName()), img);
+					}
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+	}
 
 	private void setupListeners() {
+		Bukkit.getPluginManager().registerEvents(new ImageMap(), this);
 		Bukkit.getPluginManager().registerEvents(new ColonyPlayer(), this);
 		Bukkit.getPluginManager().registerEvents(new PublicHologram(), this);
 	}
