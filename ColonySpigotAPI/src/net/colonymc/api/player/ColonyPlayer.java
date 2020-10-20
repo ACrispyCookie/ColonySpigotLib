@@ -138,10 +138,15 @@ public class ColonyPlayer implements Listener {
 	}
 	
 	@EventHandler(priority=EventPriority.LOWEST)
-	public void onFly(PlayerGameModeChangeEvent e) {
+	public void onGamemodeChange(PlayerGameModeChangeEvent e) {
 		Player p = e.getPlayer();
 		if(e.getNewGameMode() == GameMode.CREATIVE || e.getNewGameMode() == GameMode.SPECTATOR) {
 			if(!ColonyPlayer.getByPlayer(p).isFlying()) {
+				ColonyPlayer.getByPlayer(p).togglePlayerFlight();
+			}
+		}
+		else {
+			if(ColonyPlayer.getByPlayer(p).isFlying()) {
 				ColonyPlayer.getByPlayer(p).togglePlayerFlight();
 			}
 		}
