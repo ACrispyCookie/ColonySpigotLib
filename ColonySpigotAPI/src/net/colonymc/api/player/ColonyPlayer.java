@@ -9,6 +9,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerGameModeChangeEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerKickEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
@@ -133,6 +134,16 @@ public class ColonyPlayer implements Listener {
 		}
 		else {
 			e.setCancelled(false);
+		}
+	}
+	
+	@EventHandler(priority=EventPriority.LOWEST)
+	public void onFly(PlayerGameModeChangeEvent e) {
+		Player p = e.getPlayer();
+		if(e.getNewGameMode() == GameMode.CREATIVE || e.getNewGameMode() == GameMode.SPECTATOR) {
+			if(!ColonyPlayer.getByPlayer(p).isFlying()) {
+				ColonyPlayer.getByPlayer(p).togglePlayerFlight();
+			}
 		}
 	}
 
