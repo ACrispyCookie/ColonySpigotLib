@@ -25,7 +25,7 @@ public class Image {
 	
 	public static Image getByName(String name) {
 		for(Image i : imgs) {
-			if(i.getName().equals(name)) {
+			if(i.getName().equalsIgnoreCase(name)) {
 				return i;
 			}
 		}

@@ -11,6 +11,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import net.colonymc.api.book.survey.BookActionCommand;
 import net.colonymc.api.image.ImageMap;
+import net.colonymc.api.image.ImageMapBuilder;
 import net.colonymc.api.player.ColonyPlayer;
 import net.colonymc.api.player.PublicHologram;
 import net.colonymc.colonyapi.MainDatabase;
@@ -47,6 +48,7 @@ public class Main extends JavaPlugin {
 
 	private void setupListeners() {
 		Bukkit.getPluginManager().registerEvents(new ImageMap(), this);
+		Bukkit.getPluginManager().registerEvents(new ImageMapBuilder(), this);
 		Bukkit.getPluginManager().registerEvents(new ColonyPlayer(), this);
 		Bukkit.getPluginManager().registerEvents(new PublicHologram(), this);
 	}
