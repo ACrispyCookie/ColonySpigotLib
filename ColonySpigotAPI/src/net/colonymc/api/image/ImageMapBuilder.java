@@ -8,6 +8,8 @@ import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.entity.ArmorStand;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.ItemFrame;
 import org.bukkit.entity.Player;
@@ -29,6 +31,13 @@ public class ImageMapBuilder implements Listener {
 		this.p = p;
 		this.img = img;
 		p.sendMessage(ChatColor.translateAlternateColorCodes('&', " &5&l» &fPlease left-click a block to set the &dfirst position &fright-click a block to set the &dsecond position &fand run the command &d/mapimg build"));
+		maps.add(this);
+	}
+	
+	public ImageMapBuilder(Location pos1, Location pos2, Image img) {
+		this.pos1 = pos1.getBlock();
+		this.pos2 = pos2.getBlock();
+		this.img = img;
 		maps.add(this);
 	}
 	
@@ -63,9 +72,13 @@ public class ImageMapBuilder implements Listener {
 	    	for(int y = pos1.getLocation().getBlockY(); y >= pos2.getLocation().getBlockY(); y--) {
 	    		BufferedImage finalImg = img.getSubimage(xPixels, yPixels, 128, 128);
 	    		Location loc = new Location(pos1.getWorld(), x, y, pos1.getLocation().getBlockZ());
-	    		Block b = loc.getBlock();
-	    		b.setType(Material.BARRIER);
-	    		ItemFrame frame = (ItemFrame) loc.getWorld().spawnEntity(loc.add(0, 0, 1), EntityType.ITEM_FRAME);
+	    		ItemFrame frame = null;
+	    		if(exists(loc.clone().add(0, 0, 1)) == null) {
+	    			frame = (ItemFrame) loc.getWorld().spawnEntity(loc.add(0, 0, 1), EntityType.ITEM_FRAME);
+	    		}
+	    		else {
+	    			frame = exists(loc.clone().add(0, 0, 1));
+	    		}
 	    		ImageMap map = new ImageMap(finalImg, pos1.getWorld());
 	    		ItemStack item = new ItemStack(Material.MAP);
 	    		item.setDurability(map.getView().getId());
@@ -76,6 +89,17 @@ public class ImageMapBuilder implements Listener {
 		    yPixels = 0;
 	    }
 		maps.remove(this);
+	}
+	
+	private ItemFrame exists(Location loc) {
+		ArmorStand as = (ArmorStand) loc.getWorld().spawnEntity(loc.add(0, 0, 1), EntityType.ARMOR_STAND);
+		for(Entity e : as.getNearbyEntities(0, 0, 0)) {
+			if(e instanceof ItemFrame) {
+				as.remove();
+				return (ItemFrame) e;
+			}
+		}
+		return null;
 	}
 	
 	public static ImageMapBuilder getByPlayer(Player p) {

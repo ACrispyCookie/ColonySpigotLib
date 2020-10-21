@@ -10,6 +10,7 @@ import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerKickEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.map.MapCanvas;
 import org.bukkit.map.MapRenderer;
@@ -63,9 +64,14 @@ public class ImageMap implements Listener {
 	@EventHandler
 	public void onPlayerQuit(PlayerQuitEvent e) {
 		ImageMap.maps.forEach((a) -> {
-			if(a.uuids.contains(e.getPlayer().getUniqueId())) {
-				a.uuids.remove(e.getPlayer().getUniqueId());
-			}
+			a.uuids.remove(e.getPlayer().getUniqueId());
+		});
+	}
+	
+	@EventHandler
+	public void onPlayerQuit(PlayerKickEvent e) {
+		ImageMap.maps.forEach((a) -> {
+			a.uuids.remove(e.getPlayer().getUniqueId());
 		});
 	}
 
