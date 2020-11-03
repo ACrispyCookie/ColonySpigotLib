@@ -103,7 +103,7 @@ public class Hologram {
 	public void addPlayer(Player p) {
 		if(!isHidden) {
 			if(players.contains(p)) {
-				players.remove(players.indexOf(p));
+				players.remove(p);
 			}
 			players.add(p);
 			for(EntityArmorStand eas : stands) {

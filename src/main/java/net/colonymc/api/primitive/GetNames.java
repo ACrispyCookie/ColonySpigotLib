@@ -52,7 +52,7 @@ public class GetNames {
 			}
 		}
 		if (typeId.equals("397") && data.equals("3")) {
-			String headOwner = getHeadOwner((ItemStack) item);
+			String headOwner = getHeadOwner(item);
 			if (headOwner != null) {
 				name = namesConfig.getString("special.players-head").replace("%p", headOwner);
 			}
