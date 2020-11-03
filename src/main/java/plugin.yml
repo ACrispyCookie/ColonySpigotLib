@@ -1,7 +1,7 @@
 name: ColonySpigotAPI
 version: 1.0
 author: ACrispyCookie
-main: net.colonymc.api.Main
+main: net.colonymc.colonyspigotapi.Main
 depend: [ColonyAPI]
 commands:
   bookaction:
