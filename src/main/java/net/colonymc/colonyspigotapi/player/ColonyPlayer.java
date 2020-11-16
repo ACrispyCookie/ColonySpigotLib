@@ -16,7 +16,7 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerToggleFlightEvent;
 
 import net.colonymc.colonyspigotapi.Main;
-import net.colonymc.colonyapi.MainDatabase;
+import net.colonymc.colonyapi.database.MainDatabase;
 
 public class ColonyPlayer implements Listener {
 	
@@ -137,17 +137,19 @@ public class ColonyPlayer implements Listener {
 		}
 	}
 	
-	@EventHandler(priority=EventPriority.LOWEST)
+	@EventHandler(priority=EventPriority.HIGHEST)
 	public void onGamemodeChange(PlayerGameModeChangeEvent e) {
 		Player p = e.getPlayer();
-		if(e.getNewGameMode() == GameMode.CREATIVE || e.getNewGameMode() == GameMode.SPECTATOR) {
-			if(!ColonyPlayer.getByPlayer(p).isFlying()) {
-				ColonyPlayer.getByPlayer(p).togglePlayerFlight();
+		if(ColonyPlayer.getByPlayer(p) != null){
+			if(e.getNewGameMode() == GameMode.CREATIVE || e.getNewGameMode() == GameMode.SPECTATOR) {
+				if(!ColonyPlayer.getByPlayer(p).isFlying()) {
+					ColonyPlayer.getByPlayer(p).togglePlayerFlight();
+				}
 			}
-		}
-		else {
-			if(ColonyPlayer.getByPlayer(p).isFlying()) {
-				ColonyPlayer.getByPlayer(p).togglePlayerFlight();
+			else {
+				if(ColonyPlayer.getByPlayer(p).isFlying()) {
+					ColonyPlayer.getByPlayer(p).togglePlayerFlight();
+				}
 			}
 		}
 	}

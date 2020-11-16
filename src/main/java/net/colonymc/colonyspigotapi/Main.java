@@ -3,10 +3,12 @@ package net.colonymc.colonyspigotapi;
 import java.io.File;
 import java.io.IOException;
 
+import net.colonymc.colonyspigotapi.image.BuiltMap;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import net.colonymc.colonyspigotapi.book.survey.BookActionCommand;
@@ -14,7 +16,7 @@ import net.colonymc.colonyspigotapi.image.ImageMap;
 import net.colonymc.colonyspigotapi.image.ImageMapBuilder;
 import net.colonymc.colonyspigotapi.player.ColonyPlayer;
 import net.colonymc.colonyspigotapi.player.PublicHologram;
-import net.colonymc.colonyapi.MainDatabase;
+import net.colonymc.colonyapi.database.MainDatabase;
 
 public class Main extends JavaPlugin {
 	
@@ -26,7 +28,7 @@ public class Main extends JavaPlugin {
 	public void onEnable() {
 		instance = this;
 		if(MainDatabase.isConnected()) {
-			Main.this.saveDefaultConfig();
+			this.saveDefaultConfig();
 			setupConfigFiles();
 			setupListeners();
 			setupCommands();
@@ -48,7 +50,18 @@ public class Main extends JavaPlugin {
 
 	private void setupListeners() {
 		Bukkit.getPluginManager().registerEvents(new ImageMap(), this);
-		Bukkit.getPluginManager().registerEvents(new ImageMapBuilder(), this);
+		Bukkit.getPluginManager().registerEvents(new BuiltMap() {
+			@Override
+			public void onClick(Player p) {
+
+			}
+		}, this);
+		Bukkit.getPluginManager().registerEvents(new ImageMapBuilder() {
+			@Override
+			public void onClick(Player p) {
+
+			}
+		}, this);
 		Bukkit.getPluginManager().registerEvents(new ColonyPlayer(), this);
 		Bukkit.getPluginManager().registerEvents(new PublicHologram(), this);
 	}

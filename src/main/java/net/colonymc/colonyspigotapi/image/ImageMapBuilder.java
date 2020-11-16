@@ -4,40 +4,106 @@ import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
+import net.colonymc.colonyspigotapi.itemstacks.ItemStackBuilder;
+import net.colonymc.colonyspigotapi.player.PlayerInventory;
+import net.minecraft.server.v1_8_R3.NBTTagString;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
-import org.bukkit.entity.ArmorStand;
+import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.ItemFrame;
 import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.block.Action;
-import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 
-public class ImageMapBuilder implements Listener {
-	
+public abstract class ImageMapBuilder implements Listener {
+
+	public enum Side {
+		NORTH(1, 0),
+		EAST(0, -1),
+		SOUTH(-1, 0),
+		WEST(0, 1);
+
+		int toAddX;
+		int toAddZ;
+		Side(int toAddX, int toAddZ){
+			this.toAddX = toAddX;
+			this.toAddZ = toAddZ;
+		}
+
+		public int getX(){
+			return toAddX;
+		}
+
+		public int getZ(){
+			return toAddZ;
+		}
+
+		public static Side get90Degrees(Side side){
+			if(side == Side.WEST){
+				return Side.NORTH;
+			}
+			return Side.values()[side.ordinal() + 1];
+		}
+	}
+
+	public enum COMMAND_TYPE{
+		CONSOLE,
+		PLAYER;
+
+		public static COMMAND_TYPE getByChar(char c){
+			if(c == 'c'){
+				return CONSOLE;
+			}
+			else if(c == 'p'){
+				return PLAYER;
+			}
+			return null;
+		}
+	}
+
 	Player p;
+	String name;
+	String command;
+	COMMAND_TYPE type;
+	Side side;
 	Block pos1;
 	Block pos2;
 	Image img;
+	public abstract void onClick(Player p);
 	static final ArrayList<ImageMapBuilder> maps = new ArrayList<>();
 	
-	public ImageMapBuilder(Player p, Image img) {
+	public ImageMapBuilder(Player p, Image img, String name, String command, COMMAND_TYPE type) {
+		this.name = name;
+		this.command = command;
+		this.type = type;
 		this.p = p;
 		this.img = img;
-		p.sendMessage(ChatColor.translateAlternateColorCodes('&', " &5&l» &fPlease left-click a block to set the &dfirst position &fright-click a block to set the &dsecond position &fand run the command &d/mapimg build"));
+		p.sendMessage(ChatColor.translateAlternateColorCodes('&', " &5&l» &fPlease place the special block at the &dfirst position &fand then at the &dsecond position &fand finally run the command &d/mapimg build"));
+		PlayerInventory.addItem(new ItemStackBuilder(Material.BARRIER).name("&cPlace at the corners of the banner...").addTag("mapimg", new NBTTagString(p.getName())).build(), p, 2);
+		maps.add(this);
+	}
+
+	public ImageMapBuilder(Player p, Image img, String name) {
+		this.name = name;
+		this.p = p;
+		this.img = img;
+		p.sendMessage(ChatColor.translateAlternateColorCodes('&', " &5&l» &fPlease place the special block at the &dfirst position &fand then at the &dsecond position &fand finally run the command &d/mapimg build"));
+		PlayerInventory.addItem(new ItemStackBuilder(Material.BARRIER).name("&cPlace at the corners of the banner...").addTag("mapimg", new NBTTagString(p.getName())).build(), p, 2);
 		maps.add(this);
 	}
 	
-	public ImageMapBuilder(Location pos1, Location pos2, Image img) {
+	public ImageMapBuilder(Location pos1, Location pos2, Image img, String name, String command, COMMAND_TYPE type, Side side) {
+		this.name = name;
+		this.command = command;
+		this.type = type;
 		this.pos1 = pos1.getBlock();
 		this.pos2 = pos2.getBlock();
 		this.img = img;
+		this.side = side;
 		maps.add(this);
 	}
 	
@@ -45,12 +111,29 @@ public class ImageMapBuilder implements Listener {
 		
 	}
 	
-	public void setPos1(Block pos1) {
+	public void setPos1(Block pos1, BlockFace face) {
 		this.pos1 = pos1;
+		this.side = Side.valueOf(face.name());
 	}
 	
 	public void setPos2(Block pos2) {
 		this.pos2 = pos2;
+	}
+
+	public Block getPos1(){
+		return pos1;
+	}
+
+	public Block getPos2(){
+		return pos2;
+	}
+
+	public COMMAND_TYPE getCommandType(){
+		return type;
+	}
+
+	public String getCommand(){
+		return command;
 	}
 	
 	public void cancel() {
@@ -59,47 +142,61 @@ public class ImageMapBuilder implements Listener {
 	}
 	
 	@SuppressWarnings("deprecation")
-	public void build() {
-		int totalWidth = (Math.max(pos1.getLocation().getBlockX(), pos2.getLocation().getBlockX()) - Math.min(pos1.getLocation().getBlockX(), pos2.getLocation().getBlockX())) * 128 + 128;
-		int totalHeight = (Math.max(pos1.getLocation().getBlockY(), pos2.getLocation().getBlockY()) - Math.min(pos1.getLocation().getBlockY(), pos2.getLocation().getBlockY())) * 128 + 128;
-		BufferedImage img = new BufferedImage(totalWidth, totalHeight, BufferedImage.TYPE_INT_RGB);
-		Graphics2D graphics2D = img.createGraphics();
-	    graphics2D.drawImage(this.img.getImg(), 0, 0, totalWidth, totalHeight, null);
-	    graphics2D.dispose();
+	public BuiltMap build() {
+		pos1.setType(Material.AIR);
+		pos2.setType(Material.AIR);
 	    int xPixels = 0;
 	    int yPixels = 0;
-	    for(int x = pos1.getLocation().getBlockX(); x <= pos2.getLocation().getBlockX(); x++) {
-	    	for(int y = pos1.getLocation().getBlockY(); y >= pos2.getLocation().getBlockY(); y--) {
-	    		BufferedImage finalImg = img.getSubimage(xPixels, yPixels, 128, 128);
-	    		Location loc = new Location(pos1.getWorld(), x, y, pos1.getLocation().getBlockZ());
-	    		ItemFrame frame = null;
-	    		if(exists(loc.clone().add(0, 0, 1)) == null) {
-	    			frame = (ItemFrame) loc.getWorld().spawnEntity(loc.add(0, 0, 1), EntityType.ITEM_FRAME);
-	    		}
-	    		else {
-	    			frame = exists(loc.clone().add(0, 0, 1));
-	    		}
-	    		ImageMap map = new ImageMap(finalImg, pos1.getWorld());
-	    		ItemStack item = new ItemStack(Material.MAP);
-	    		item.setDurability(map.getView().getId());
-	    		frame.setItem(item);
-	    		yPixels += 128;
-	    	}
-		    xPixels += 128;
-		    yPixels = 0;
-	    }
-		maps.remove(this);
-	}
-	
-	private ItemFrame exists(Location loc) {
-		ArmorStand as = (ArmorStand) loc.getWorld().spawnEntity(loc.add(0, 0, 1), EntityType.ARMOR_STAND);
-		for(Entity e : as.getNearbyEntities(0, 0, 0)) {
-			if(e instanceof ItemFrame) {
-				as.remove();
-				return (ItemFrame) e;
+		int maxY = Math.max(pos1.getY(), pos2.getY());
+		int minY = Math.min(pos1.getY(), pos2.getY());
+		int max = pos1.getX() - pos2.getX() != 0 ? Math.max(pos1.getX(), pos2.getX()) : Math.max(pos1.getZ(), pos2.getZ());
+		int min = pos1.getX() - pos2.getX() != 0 ? Math.min(pos1.getX(), pos2.getX()) : Math.min(pos1.getZ(), pos2.getZ());
+		int totalWidth = (max - min) * 128 + 128;
+		int totalHeight = (maxY - minY) * 128 + 128;
+		BufferedImage img = new BufferedImage(totalWidth, totalHeight, BufferedImage.TYPE_INT_RGB);
+		Graphics2D graphics2D = img.createGraphics();
+		graphics2D.drawImage(this.img.getImg(), 0, 0, totalWidth, totalHeight, null);
+		graphics2D.dispose();
+		ArrayList<ImageMap> imageMaps = new ArrayList<>();
+		for(int changing = 0; changing <= max - min; changing++) {
+			for(int y = maxY; y >= minY; y--) {
+				BufferedImage finalImg = img.getSubimage(xPixels, yPixels, 128, 128);
+				Location loc = new Location(
+						pos1.getWorld(),
+						pos1.getX() - pos2.getX() == 0 ? pos1.getX() : side.getX() < 0 ? min - changing * side.getX() : max - changing * side.getX(),
+						y,
+						pos1.getZ() - pos2.getZ() == 0 ? pos1.getZ() : side.getZ() < 0 ? max + changing * side.getZ() : min + changing * side.getZ()
+				);
+				ItemFrame frame = null;
+				try{
+					frame = (ItemFrame) loc.getWorld().spawnEntity(loc, EntityType.ITEM_FRAME);
+				} catch (Exception e1){
+					for(Entity e : loc.getChunk().getEntities()){
+						if(e instanceof ItemFrame && e.getLocation().getBlockX() == loc.getBlockX() && e.getLocation().getBlockY() == loc.getBlockY() && e.getLocation().getBlockZ() == loc.getBlockZ()){
+							frame = (ItemFrame) e;
+							break;
+						}
+					}
+				}
+				ImageMap map = new ImageMap(finalImg, frame);
+				imageMaps.add(map);
+				ItemStack item = new ItemStack(Material.MAP);
+				item.setDurability(map.getView().getId());
+				frame.setItem(item);
+				frame.setFacingDirection(BlockFace.valueOf(side.name()), true);
+				yPixels += 128;
 			}
+			xPixels += 128;
+			yPixels = 0;
 		}
-		return null;
+	    BuiltMap map = new BuiltMap(name, this.img, imageMaps, side, command, type) {
+			@Override
+			public void onClick(Player p) {
+				ImageMapBuilder.this.onClick(p);
+			}
+		};
+		maps.remove(this);
+		return map;
 	}
 	
 	public static ImageMapBuilder getByPlayer(Player p) {
@@ -110,46 +207,14 @@ public class ImageMapBuilder implements Listener {
 		}
 		return null;
 	}
-	
-	@EventHandler
-	public void onRightClick(PlayerInteractEvent e) {
-		if(ImageMapBuilder.getByPlayer(e.getPlayer()) != null) {
-			ImageMapBuilder map = ImageMapBuilder.getByPlayer(e.getPlayer());
-			if(e.getAction() == Action.RIGHT_CLICK_BLOCK) {
-				e.setCancelled(true);
-				if(map.pos1 == null) {
-					e.getPlayer().sendMessage(ChatColor.translateAlternateColorCodes('&', " &5&l» &fYou have set the second position of the image to &d[" + e.getClickedBlock().getX() + ", " + e.getClickedBlock().getY() + ", " + e.getClickedBlock().getZ() + "]"));
-					map.setPos2(e.getClickedBlock());
-				}
-				else {
-					if(e.getClickedBlock().getX() == map.pos1.getX() || e.getClickedBlock().getY() == map.pos1.getY() || e.getClickedBlock().getZ() == map.pos1.getZ()) {
-						e.getPlayer().sendMessage(ChatColor.translateAlternateColorCodes('&', " &5&l» &fYou have set the second position of the image to &d[" + e.getClickedBlock().getX() + ", " + e.getClickedBlock().getY() + ", " + e.getClickedBlock().getZ() + "]"));
-						map.setPos2(e.getClickedBlock());
-						e.getPlayer().sendMessage(ChatColor.translateAlternateColorCodes('&', " &5&l» &fYour map is ready! Type &d/mapimg build &fto build it!"));
-					}
-					else {
-						e.getPlayer().sendMessage(ChatColor.translateAlternateColorCodes('&', " &5&l» &cPlease select a flat surface!"));
-					}
-				}
-			}
-			else if(e.getAction() == Action.LEFT_CLICK_BLOCK) {
-				e.setCancelled(true);
-				if(map.pos2 == null) {
-					e.getPlayer().sendMessage(ChatColor.translateAlternateColorCodes('&', " &5&l» &fYou have set the first position of the image to &d[" + e.getClickedBlock().getX() + ", " + e.getClickedBlock().getY() + ", " + e.getClickedBlock().getZ() + "]"));
-					map.setPos1(e.getClickedBlock());
-				}
-				else {
-					if(map.pos2.getX() == e.getClickedBlock().getX() || map.pos2.getY() == e.getClickedBlock().getY() || map.pos2.getZ() == e.getClickedBlock().getZ()) {
-						e.getPlayer().sendMessage(ChatColor.translateAlternateColorCodes('&', " &5&l» &fYou have set the first position of the image to &d[" + e.getClickedBlock().getX() + ", " + e.getClickedBlock().getY() + ", " + e.getClickedBlock().getZ() + "]"));
-						map.setPos1(e.getClickedBlock());
-						e.getPlayer().sendMessage(ChatColor.translateAlternateColorCodes('&', " &5&l» &fYour map is ready! Type &d/mapimg build &fto build it!"));
-					}
-					else {
-						e.getPlayer().sendMessage(ChatColor.translateAlternateColorCodes('&', " &5&l» &cPlease select a flat surface!"));
-					}
-				}
+
+	public static ImageMapBuilder getByName(String name) {
+		for (ImageMapBuilder map : maps) {
+			if (map.name.equalsIgnoreCase(name)) {
+				return map;
 			}
 		}
+		return null;
 	}
 
 }
