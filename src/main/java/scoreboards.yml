@@ -1,0 +1,22 @@
+scoreboards:
+  normal:
+    title: "&5&lColonyMC &7[Lobby]"
+    lines:
+      - '&f&m-+--------------+-'
+      - ' '
+      - '&5&lPlayer Info:'
+      - '&5» &fRank: &d%vault_group%'
+      - '&5» &fPing: &d%player_ping%ms'
+      - ' '
+      - '&5&lServer Info:'
+      - '&5» &fSkyblock: &cMaintenance'
+      - '&5» &f&kOOOOOOO&r: &cOfflineeeee'
+      - '&5» &f&kOOOOOOO&r: &cOffline'
+      - '&5» &dplay.colonymc.net'
+      - '&f&m-+--------------+-'
+    updating_lines:
+      - 3
+      - 4
+      - 7
+      - 8
+      - 9

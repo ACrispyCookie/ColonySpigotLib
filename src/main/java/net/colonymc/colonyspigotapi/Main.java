@@ -22,7 +22,9 @@ public class Main extends JavaPlugin {
 	
 	static Main instance;
 	final File names = new File(this.getDataFolder(), "names.yml");
-	FileConfiguration namesConfig;
+	private final File scoreboards = new File(this.getDataFolder(), "scoreboards.yml");
+	private final FileConfiguration namesConfig = new YamlConfiguration();
+	private final FileConfiguration scoreboardConfig = new YamlConfiguration();
 	boolean started = false;
 	
 	public void onEnable() {
@@ -84,9 +86,13 @@ public class Main extends JavaPlugin {
 			names.getParentFile().mkdirs();
 			saveResource("names.yml", false);
 		}
-		namesConfig = new YamlConfiguration();
+		if(!scoreboards.exists()) {
+			scoreboards.getParentFile().mkdirs();
+			saveResource("scoreboards.yml", false);
+		}
 		try {
 			namesConfig.load(names);
+			scoreboardConfig.load(scoreboards);
 		} catch (IOException | InvalidConfigurationException e) {
 			e.printStackTrace();
 		}
@@ -98,6 +104,10 @@ public class Main extends JavaPlugin {
 	
 	public FileConfiguration getNamesConfig() {
 		return namesConfig;
+	}
+
+	public FileConfiguration getScoreboards() {
+		return scoreboardConfig;
 	}
 
 }
