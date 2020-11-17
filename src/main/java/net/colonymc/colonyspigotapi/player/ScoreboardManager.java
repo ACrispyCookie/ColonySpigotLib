@@ -24,6 +24,7 @@ public class ScoreboardManager {
 
     public ScoreboardManager(Player p, String type) {
         this.p = p;
+        this.name = name;
         scoreboards.add(this);
         start();
     }
@@ -45,7 +46,6 @@ public class ScoreboardManager {
         Objective o = b.registerNewObjective("[Skyblock]", "dummy");
         o.setDisplaySlot(DisplaySlot.SIDEBAR);
         o.setDisplayName(ChatColor.translateAlternateColorCodes('&', Main.getInstance().getScoreboards().getString("scoreboards." + name + ".title")));
-        List<Integer> updating = Main.getInstance().getScoreboards().getIntegerList("scoreboards." + name + ".updating_lines");
         List<String> lines = Main.getInstance().getScoreboards().getStringList("scoreboards." + name + ".lines");
         int score = 15;
         for(int i = 0; i < lines.size(); i++){
