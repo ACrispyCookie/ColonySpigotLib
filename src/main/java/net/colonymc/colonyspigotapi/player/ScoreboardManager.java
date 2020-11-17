@@ -24,7 +24,7 @@ public class ScoreboardManager {
 
     public ScoreboardManager(Player p, String type) {
         this.p = p;
-        this.name = name;
+        this.name = type;
         scoreboards.add(this);
         start();
     }
