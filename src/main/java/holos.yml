@@ -1,0 +1,15 @@
+holograms:
+  welcome:
+    world: "world"
+    posX: 0.5
+    posY: 111
+    posZ: 6.5
+    lines:
+      - "&fWelcome to &5&lColonyMC"
+      - "&fChoose a server to start!"
+      - " "
+      - "&5&LSITE&r &fcolonymc.net"
+      - "&5&LVOTE&r &fcolonymc.net/vote"
+      - "&5&LSTORE&r &fstore.colonymc.net"
+      - " "
+      - "&5&l&m*&f&l&m*&5&l&m*"

@@ -4,5 +4,55 @@ author: ACrispyCookie
 main: net.colonymc.colonyspigotapi.Main
 depend: [ColonyAPI]
 commands:
+  reloadimgs:
+    description: Command to reload all the images
+  particleimg:
+    description: Command to render an image with particles
+  mapimg:
+    description: Command to render an image with maps
+  enchantment:
+    description: Enchantment command
+    aliases: [ enchant ]
+  lore:
+    description: Lore command
+  rename:
+    description: Rename command
+  fly:
+    description: Fly command
+  gamemode:
+    description: Gamemode command
+    aliases: [ gm ]
+  gms:
+    description: Gamemode survival command
+  gmc:
+    description: Gamemode creative command
+  gmsp:
+    description: Gamemode spectator command
+  gma:
+    description: Gamemode adventure command
+  give:
+    description: Give command
+    aliases: [ i ]
+  heal:
+    description: Heal command
+  feed:
+    description: Feed command
+  hologram:
+    description: Hologram command
+    aliases: [ holo, h ]
+  removewarp:
+    description: Remove warp command
+  setwarp:
+    description: Set warp command
+  speed:
+    description: Speed command
+  time:
+    description: Time command
+  warp:
+    descirption: Warp command
+  warps:
+    description: Warps command
   bookaction:
     description: Command used in book GUIs
+  testcmd:
+    description: Command used for a test inventory

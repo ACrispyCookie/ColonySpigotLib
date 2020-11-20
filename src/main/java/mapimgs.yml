@@ -1,0 +1,15 @@
+maps:
+  welcome:
+    world: hub
+    pos1:
+      x: 23
+      y: 72
+      z: -3
+    pos2:
+      x: 38
+      y: 64
+      z: -3
+    image: "welcome1"
+    command:
+      type: 'c'
+      value: "spawn"
