@@ -4,6 +4,14 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
+import net.colonymc.colonyapi.Rank;
+import net.colonymc.colonyspigotapi.api.player.visuals.NameTag;
+import net.luckperms.api.LuckPerms;
+import net.luckperms.api.event.user.UserDataRecalculateEvent;
+import net.luckperms.api.event.user.track.UserDemoteEvent;
+import net.luckperms.api.event.user.track.UserPromoteEvent;
+import net.luckperms.api.model.user.User;
+import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -21,6 +29,7 @@ import net.colonymc.colonyapi.database.MainDatabase;
 public class ColonyPlayer implements Listener {
 	
 	Player p;
+	Rank rank;
 	int votes;
 	boolean visibility;
 	boolean isFlying = false;
@@ -28,18 +37,18 @@ public class ColonyPlayer implements Listener {
 	
 	public ColonyPlayer(Player p) {
 		this.p = p;
-		setup();
+		setupData();
+		setupIngame();
 		players.add(this);
+		LuckPerms luckPerms = Main.getInstance().getLuckPerms();
+		luckPerms.getEventBus().subscribe(UserDataRecalculateEvent.class, this::onUserRecalculate);
 	}
 	
 	public ColonyPlayer() {
-		
+
 	}
 	
-	private void setup() {
-		if(p.hasPermission("*")) {
-			togglePlayerFlight();
-		}
+	private void setupData() {
 		ResultSet rs = MainDatabase.getResultSet("SELECT * FROM PlayerInfo WHERE uuid='" + p.getUniqueId().toString() + "';");
 		try {
 			if(rs.next()) {
@@ -56,6 +65,34 @@ public class ColonyPlayer implements Listener {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
+	}
+
+	private void setupIngame(){
+		if(p.hasPermission("*")) {
+			togglePlayerFlight();
+		}
+		setRank();
+		new NameTag(this, 1) {
+			@Override
+			protected String updatePrefix(ColonyPlayer p) {
+				return p.getRank().getPrefix();
+			}
+
+			@Override
+			protected String updateSuffix(ColonyPlayer p) {
+				return "";
+			}
+		}.send();
+	}
+
+	private void remove(){
+		NameTag.getByPlayer(getBukkitPlayer()).stop();
+		players.remove(this);
+	}
+
+	private void setRank(){
+		User u = Main.getInstance().getLuckPerms().getUserManager().getUser(p.getUniqueId());
+		rank = Rank.getByName(u.getPrimaryGroup());
 	}
 	
 	public void togglePlayerFlight() {
@@ -100,6 +137,8 @@ public class ColonyPlayer implements Listener {
 	public Player getBukkitPlayer() {
 		return p;
 	}
+
+	public Rank getRank() { return rank; }
 	
 	public static ColonyPlayer getByPlayer(Player p) {
 		for(ColonyPlayer cp : players) {
@@ -117,12 +156,13 @@ public class ColonyPlayer implements Listener {
 	
 	@EventHandler(priority=EventPriority.LOWEST)
 	public void onLeave(PlayerQuitEvent e) {
-		ColonyPlayer.players.remove(ColonyPlayer.getByPlayer(e.getPlayer()));
+		ColonyPlayer.getByPlayer(e.getPlayer()).remove();
 	}
 	
 	@EventHandler(priority=EventPriority.LOWEST)
 	public void onLeave(PlayerKickEvent e) {
-		ColonyPlayer.players.remove(ColonyPlayer.getByPlayer(e.getPlayer()));
+
+		ColonyPlayer.getByPlayer(e.getPlayer()).remove();
 	}
 
 	@EventHandler(priority=EventPriority.LOWEST)
@@ -152,6 +192,10 @@ public class ColonyPlayer implements Listener {
 				}
 			}
 		}
+	}
+
+	public void onUserRecalculate(UserDataRecalculateEvent e) {
+		setRank();
 	}
 
 }

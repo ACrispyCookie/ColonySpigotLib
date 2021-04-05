@@ -56,9 +56,9 @@ public class ColonyInventory implements InventoryHolder {
         return inventory;
     }
 
-    public ColonyInventory addButton(Button button){
+    public Button addButton(Button button){
         buttonArrayList.add(button);
-        return this;
+        return button;
     }
 
     protected Button getByIndex(int index) {

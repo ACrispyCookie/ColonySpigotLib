@@ -1,15 +1,15 @@
 package net.colonymc.colonyspigotapi;
 
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
+import net.colonymc.colonyapi.database.MainDatabase;
 import net.colonymc.colonyspigotapi.api.AutomaticRestart;
+import net.colonymc.colonyspigotapi.api.holograms.PublicHologram;
 import net.colonymc.colonyspigotapi.api.image.BuiltMap;
 import net.colonymc.colonyspigotapi.api.image.Image;
+import net.colonymc.colonyspigotapi.api.image.ImageMap;
+import net.colonymc.colonyspigotapi.api.image.ImageMapBuilder;
 import net.colonymc.colonyspigotapi.api.inventory.ColonyInventoryListener;
+import net.colonymc.colonyspigotapi.api.player.ColonyPlayer;
+import net.colonymc.colonyspigotapi.api.survey.BookActionCommand;
 import net.colonymc.colonyspigotapi.commands.TestCommand;
 import net.colonymc.colonyspigotapi.commands.hologram.HologramCommand;
 import net.colonymc.colonyspigotapi.commands.images.MapImgCommand;
@@ -29,6 +29,9 @@ import net.colonymc.colonyspigotapi.commands.warp.WarpCommand;
 import net.colonymc.colonyspigotapi.commands.warp.WarpsCommand;
 import net.colonymc.colonyspigotapi.commands.world.TimeCommand;
 import net.colonymc.colonyspigotapi.other.Warp;
+
+import net.luckperms.api.LuckPerms;
+import net.luckperms.api.LuckPermsProvider;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.configuration.ConfigurationSection;
@@ -38,19 +41,18 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import net.colonymc.colonyspigotapi.api.survey.BookActionCommand;
-import net.colonymc.colonyspigotapi.api.image.ImageMap;
-import net.colonymc.colonyspigotapi.api.image.ImageMapBuilder;
-import net.colonymc.colonyspigotapi.api.player.ColonyPlayer;
-import net.colonymc.colonyspigotapi.api.holograms.PublicHologram;
-import net.colonymc.colonyapi.database.MainDatabase;
-
 import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Main extends JavaPlugin {
 	
 	static Main instance;
 	final File names = new File(this.getDataFolder(), "names.yml");
+	private LuckPerms luckPerms;
 	private final File scoreboards = new File(this.getDataFolder(), "scoreboards.yml");
 	private final File warp = new File(this.getDataFolder(), "warps.yml");
 	private final File holo = new File(this.getDataFolder(), "holos.yml");
@@ -68,6 +70,10 @@ public class Main extends JavaPlugin {
 		instance = this;
 		if(MainDatabase.isConnected()) {
 			this.saveDefaultConfig();
+			if(Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI")) {
+				new Placeholders(this).register();
+			}
+			luckPerms = LuckPermsProvider.get();
 			setupConfigs();
 			setupListeners();
 			setupCommands();
@@ -75,6 +81,7 @@ public class Main extends JavaPlugin {
 			setupMaps();
 			setupWarps();
 			setupPublicHolograms();
+			setupPlayers();
 			new AutomaticRestart();
 			started = true;
 			System.out.println(" » ColonySpigotAPI has been enabled successfully!");
@@ -255,6 +262,12 @@ public class Main extends JavaPlugin {
 		}
 	}
 
+	private void setupPlayers(){
+		for(Player p : Bukkit.getOnlinePlayers()){
+			new ColonyPlayer(p);
+		}
+	}
+
 	public void addWarpToConfig(Warp warp) {
 		warpConfig.createSection("warps." + warp.getName());
 		warpConfig.set("warps." + warp.getName() + ".world", warp.getLocation().getWorld().getName());
@@ -368,6 +381,10 @@ public class Main extends JavaPlugin {
 
 	public FileConfiguration getWarps() {
 		return warpConfig;
+	}
+
+	public LuckPerms getLuckPerms(){
+		return luckPerms;
 	}
 
 

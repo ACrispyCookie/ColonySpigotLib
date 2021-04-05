@@ -51,15 +51,14 @@ public class Title {
 	}
 	
 	public void send(Player p) {
+		IChatBaseComponent chatTitle = ChatSerializer.a("{\"text\": \"" + text + "\"}");
 		if(type != TitleAction.ACTIOBAR) {
-			IChatBaseComponent chatTitle = ChatSerializer.a("{\"text\": \"" + text + "\"}");
 			PacketPlayOutTitle title = new PacketPlayOutTitle(EnumTitleAction.valueOf(type.name()), chatTitle);
 			PacketPlayOutTitle length = new PacketPlayOutTitle(fadeIn, duration, fadeOut);
 			((CraftPlayer) p).getHandle().playerConnection.sendPacket(title);
 			((CraftPlayer) p).getHandle().playerConnection.sendPacket(length);
 		}
 		else {
-			IChatBaseComponent chatTitle = ChatSerializer.a("{\"text\": \"" + text + "\"}");
 			PacketPlayOutChat packet = new PacketPlayOutChat(chatTitle, (byte) 2);
 			((CraftPlayer) p).getHandle().playerConnection.sendPacket(packet);
 		}

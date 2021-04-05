@@ -42,6 +42,7 @@ public class ColonyInventoryListener implements Listener {
                     if(element.getRefreshInterval() > 0){
                         element.getRefresh().cancel();
                     }
+                    ((PageInventory) colonyInventory).getElements().remove(element);
                 }
                 PageInventory pageInventory = (PageInventory) colonyInventory;
                 pageInventory.getElementRefresh().cancel();

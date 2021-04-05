@@ -2,7 +2,7 @@ name: ColonySpigotAPI
 version: 1.0
 author: ACrispyCookie
 main: net.colonymc.colonyspigotapi.Main
-depend: [ColonyAPI]
+depend: [ColonyAPI, PlaceholderAPI, LuckPerms]
 commands:
   reloadimgs:
     description: Command to reload all the images

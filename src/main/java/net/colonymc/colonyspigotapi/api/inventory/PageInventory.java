@@ -24,6 +24,8 @@ public abstract class PageInventory extends ColonyInventory {
     protected int nextPageSlot;
     protected int page = 0;
     protected int totalPages;
+    protected ItemStack prevReplace;
+    protected ItemStack nextReplace;
     protected boolean usesDatabase;
     protected BukkitTask elementRefresh;
     protected ArrayList<PageElement> elements = new ArrayList<>();
@@ -50,27 +52,29 @@ public abstract class PageInventory extends ColonyInventory {
 
     private void openPage(int index) {
         p.closeInventory();
-        checkForPageButtons();
+        nextReplace = getByIndex(nextPageSlot).getItemStack();
+        prevReplace = getByIndex(previousPageSlot).getItemStack();
         initializeButtons();
+        checkForPageButtons();
         initializeElements(index);
         p.openInventory(inventory);
         startElementChecking();
     }
 
-    private void initializeElements(int index){
+    private void initializeElements(int page){
         ArrayList<Object> objects = new ArrayList<>();
         objects.addAll(getList());
-        for(int i = startPos; i <= endPos; i++){
-            if(objects.size() > index * size +  (i - startPos)){
-                Object o = objects.get(index * size + (i - startPos));
-                PageElement e = usesDatabase ? new DatabasePageElement(refreshInterval, o) {} : new PageElement(refreshInterval, o) {};
-                e.setIndexAndPage(i, index);
-                e.setInventory(this);
-                addElement(e);
+        int index = startPos;
+        for(Object o : objects){
+            if(index > endPos){
+                page++;
+                index = startPos;
             }
-            else{
-                return;
-            }
+            PageElement e = usesDatabase ? new DatabasePageElement(refreshInterval, o) {} : new PageElement(refreshInterval, o) {};
+            e.setIndexAndPage(index, page);
+            e.setInventory(this);
+            addElement(e);
+            index++;
         }
     }
 
@@ -160,6 +164,10 @@ public abstract class PageInventory extends ColonyInventory {
 
     private void checkForPageButtons(){
         if(page > 0){
+            if(getByIndex(previousPageSlot) != null){
+                prevReplace = getByIndex(previousPageSlot).getItemStack();
+                buttonArrayList.remove(getByIndex(previousPageSlot));
+            }
             addButton(new Button(previousPageSlot, 0) {
                 @Override
                 public void onClick(Player p, ClickType type) {
@@ -173,9 +181,26 @@ public abstract class PageInventory extends ColonyInventory {
             });
         }
         else{
-            buttonArrayList.remove(getByIndex(previousPageSlot));
+            if(getByIndex(previousPageSlot).getItemStack().isSimilar(new ItemStackBuilder(Material.ARROW).name("&dPrevious page").build())){
+                buttonArrayList.remove(getByIndex(previousPageSlot));
+                addButton(new Button(previousPageSlot, 0) {
+                    @Override
+                    public void onClick(Player p, ClickType type) {
+
+                    }
+
+                    @Override
+                    public ItemStack construct() {
+                        return prevReplace;
+                    }
+                });
+            }
         }
         if(page < totalPages - 1){
+            if(getByIndex(nextPageSlot) != null){
+                nextReplace = getByIndex(nextPageSlot).getItemStack();
+                buttonArrayList.remove(getByIndex(nextPageSlot));
+            }
             addButton(new Button(nextPageSlot, 0) {
                 @Override
                 public void onClick(Player p, ClickType type) {
@@ -189,7 +214,20 @@ public abstract class PageInventory extends ColonyInventory {
             });
         }
         else{
-            buttonArrayList.remove(getByIndex(nextPageSlot));
+            if(inventory.getItem(nextPageSlot).isSimilar(new ItemStackBuilder(Material.ARROW).name("&dNext page").build())){
+                buttonArrayList.remove(getByIndex(nextPageSlot));
+                addButton(new Button(nextPageSlot, 0) {
+                    @Override
+                    public void onClick(Player p, ClickType type) {
+
+                    }
+
+                    @Override
+                    public ItemStack construct() {
+                        return nextReplace;
+                    }
+                });
+            }
         }
     }
 
