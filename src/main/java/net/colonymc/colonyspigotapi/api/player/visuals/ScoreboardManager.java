@@ -7,10 +7,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
-import org.bukkit.scoreboard.DisplaySlot;
-import org.bukkit.scoreboard.Objective;
-import org.bukkit.scoreboard.Scoreboard;
-import org.bukkit.scoreboard.Team;
+import org.bukkit.scoreboard.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -61,6 +58,8 @@ public class ScoreboardManager {
             o.getScore(teamEntry).setScore(score);
             score--;
         }
+        Team team = b.registerNewTeam(("nameTagHide-" + p.getUniqueId().toString()).substring(0, 16));
+        team.setNameTagVisibility(NameTagVisibility.NEVER);
         p.setScoreboard(b);
     }
 
@@ -70,6 +69,7 @@ public class ScoreboardManager {
             public void run() {
                 if(p.isOnline()){
                     updateLines();
+                    updateTeams();
                 }
                 else{
                     cancel();
@@ -90,6 +90,12 @@ public class ScoreboardManager {
             Team team = p.getScoreboard().getTeam(String.valueOf(i));
             team.setPrefix(prefix);
             team.setSuffix(suffix);
+        }
+    }
+
+    private void updateTeams(){
+        for(Player pl : Bukkit.getOnlinePlayers()){
+            p.getScoreboard().getTeam(("nameTagHide-" + p.getUniqueId().toString()).substring(0, 16)).addPlayer(pl);
         }
     }
 

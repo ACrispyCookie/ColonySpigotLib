@@ -31,7 +31,6 @@ public abstract class NameTagReceiver {
         this.tag = constructTag();
         this.period = period;
         tags.add(this);
-        Bukkit.getScoreboardManager().getMainScoreboard().getTeam("nametagHide").addPlayer(p.getBukkitPlayer());
     }
 
     public void startReceiving(){

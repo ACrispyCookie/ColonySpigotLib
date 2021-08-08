@@ -24,8 +24,6 @@ import org.bukkit.event.player.PlayerToggleFlightEvent;
 
 import net.colonymc.colonyspigotapi.Main;
 import net.colonymc.colonyapi.database.MainDatabase;
-import org.bukkit.scoreboard.NameTagVisibility;
-import org.bukkit.scoreboard.Team;
 
 public class ColonyPlayer implements Listener {
 	
@@ -46,10 +44,6 @@ public class ColonyPlayer implements Listener {
 	}
 	
 	public ColonyPlayer() {
-		if(Bukkit.getScoreboardManager().getMainScoreboard().getTeam("nametagHide") == null){
-			Team team = Bukkit.getScoreboardManager().getMainScoreboard().registerNewTeam("nametagHide");
-			team.setNameTagVisibility(NameTagVisibility.NEVER);
-		}
 		for(Player p : Bukkit.getOnlinePlayers()){
 			new NameTagReceiver(getByPlayer(p), 1) {
 				@Override
