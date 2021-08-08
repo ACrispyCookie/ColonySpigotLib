@@ -3,13 +3,14 @@ package net.colonymc.colonyspigotapi.api.player;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.UUID;
 
 import net.colonymc.colonyapi.Rank;
-import net.colonymc.colonyspigotapi.api.player.visuals.nametag.NameTag;
 import net.colonymc.colonyspigotapi.api.player.visuals.nametag.NameTagReceiver;
 import net.luckperms.api.LuckPerms;
 import net.luckperms.api.event.user.UserDataRecalculateEvent;
 import net.luckperms.api.model.user.User;
+import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -23,6 +24,8 @@ import org.bukkit.event.player.PlayerToggleFlightEvent;
 
 import net.colonymc.colonyspigotapi.Main;
 import net.colonymc.colonyapi.database.MainDatabase;
+import org.bukkit.scoreboard.NameTagVisibility;
+import org.bukkit.scoreboard.Team;
 
 public class ColonyPlayer implements Listener {
 	
@@ -43,7 +46,23 @@ public class ColonyPlayer implements Listener {
 	}
 	
 	public ColonyPlayer() {
+		if(Bukkit.getScoreboardManager().getMainScoreboard().getTeam("nametagHide") == null){
+			Team team = Bukkit.getScoreboardManager().getMainScoreboard().registerNewTeam("nametagHide");
+			team.setNameTagVisibility(NameTagVisibility.NEVER);
+		}
+		for(Player p : Bukkit.getOnlinePlayers()){
+			new NameTagReceiver(getByPlayer(p), 1) {
+				@Override
+				protected String updatePrefix(ColonyPlayer p) {
+					return p.getRank().getPrefix();
+				}
 
+				@Override
+				protected String updateSuffix(ColonyPlayer p) {
+					return "";
+				}
+			}.startReceiving();
+		}
 	}
 	
 	private void setupData() {
@@ -90,6 +109,9 @@ public class ColonyPlayer implements Listener {
 
 	private void setRank(){
 		User u = Main.getInstance().getLuckPerms().getUserManager().getUser(p.getUniqueId());
+		System.out.println(u.getPrimaryGroup());
+		System.out.println(Rank.getByName(u.getPrimaryGroup()));
+		System.out.println(Rank.getByName(u.getPrimaryGroup()).getPrefix());
 		rank = Rank.getByName(u.getPrimaryGroup());
 	}
 	
