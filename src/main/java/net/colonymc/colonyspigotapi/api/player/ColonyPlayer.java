@@ -5,13 +5,11 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 
 import net.colonymc.colonyapi.Rank;
-import net.colonymc.colonyspigotapi.api.player.visuals.NameTag;
+import net.colonymc.colonyspigotapi.api.player.visuals.nametag.NameTag;
+import net.colonymc.colonyspigotapi.api.player.visuals.nametag.NameTagReceiver;
 import net.luckperms.api.LuckPerms;
 import net.luckperms.api.event.user.UserDataRecalculateEvent;
-import net.luckperms.api.event.user.track.UserDemoteEvent;
-import net.luckperms.api.event.user.track.UserPromoteEvent;
 import net.luckperms.api.model.user.User;
-import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -72,7 +70,7 @@ public class ColonyPlayer implements Listener {
 			togglePlayerFlight();
 		}
 		setRank();
-		new NameTag(this, 1) {
+		new NameTagReceiver(this, 1) {
 			@Override
 			protected String updatePrefix(ColonyPlayer p) {
 				return p.getRank().getPrefix();
@@ -82,11 +80,11 @@ public class ColonyPlayer implements Listener {
 			protected String updateSuffix(ColonyPlayer p) {
 				return "";
 			}
-		}.send();
+		}.startReceiving();
 	}
 
 	private void remove(){
-		NameTag.getByPlayer(getBukkitPlayer()).stop();
+		NameTagReceiver.getByPlayer(getBukkitPlayer()).stopReceiving();
 		players.remove(this);
 	}
 
