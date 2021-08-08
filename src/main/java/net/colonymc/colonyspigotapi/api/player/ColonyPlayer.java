@@ -109,9 +109,6 @@ public class ColonyPlayer implements Listener {
 
 	private void setRank(){
 		User u = Main.getInstance().getLuckPerms().getUserManager().getUser(p.getUniqueId());
-		System.out.println(u.getPrimaryGroup());
-		System.out.println(Rank.getByName(u.getPrimaryGroup()));
-		System.out.println(Rank.getByName(u.getPrimaryGroup()).getPrefix());
 		rank = Rank.getByName(u.getPrimaryGroup());
 	}
 	
