@@ -8,7 +8,7 @@ Features:
   - Basic Inventory
   - Boss Bar, Chat, Name tag, Tab list
   - Particle Player
-  - ItemStack (with NBT support)
+  - ItemStack builder (with NBT support)
   - Holograms
   - Player Warps
   - Automatic Restart
