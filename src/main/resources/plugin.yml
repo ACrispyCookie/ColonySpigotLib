@@ -1,7 +1,7 @@
-name: ColonySpigotAPI
+name: ColonySpigotLib
 version: 1.0
 author: ACrispyCookie
-main: net.colonymc.colonyspigotapi.Main
+main: net.colonymc.colonyspigotlib.Main
 depend: [ColonyAPI, PlaceholderAPI, LuckPerms]
 commands:
   reloadimgs:
