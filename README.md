@@ -1,15 +1,13 @@
 # ColonySpigotLib
-An lib used on every ColonyMC's spigot server which provides some very basic and unique features.
+ColonySpigotLib is a plugin that offers some basic functionality for ColonyMC's spigot servers. Its features include:
 
-Features:
-  - Image Rendering using maps
-  - Image Rendering using particles (for small pictures)
-  - Book Menu
-  - Basic Inventory library
-  - Boss Bar, Chat, Name tag, Tab list
-  - Particle Player
-  - ItemStack builder (with NBT support)
-  - Holograms
-  - Player Warps
-  - Automatic Restart
+  - Image rendering using maps (with on-click commands)
+  - Image rendering using particles (for small images)
+  - Global, per player and clickable holograms.
+  - Clickable book menus.
+  - Updating scoreboard and tablist
+  - Unlimited length name tags
+  - Warps
+  - ItemStackBuilder class (with NBT support)
+  - Basic inventory library.
   - Basic Player Commands ("/gm", "heal", "/enchant", "/lore")
